@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace可以理解为Java代码中的包名,用于区分同样ID的SQL语句-->
+<mapper namespace="com.sunny.maven.pojo.User">
+
+    <!-- id : 唯一标识
+        resultType : 返回值类型.
+        parameterType : 指定传入进来的参数的数据类型
+        #{id}: 占位符,{}中的内容可以任意指定,但是有一个前提,传递进来的数据类型必须是简单数据
+        (8中基本数据类型+String)
+    -->
+    <select id="selectUserById" resultType="com.sunny.maven.pojo.User" parameterType="integer">
+        SELECT *  FROM user WHERE id = #{id}
+    </select>
+
+    <!--${value}Ognl表达式表示的是SQL拼接字符串,可以接收简单类型值或POJO属性值,
+        单个简单类型值必须用value接收-->
+    <select id="selectUserByUsername" resultType="com.sunny.maven.pojo.User" parameterType="string">
+        select * from user where username like '%${value}%'
+    </select>
+    <!--为防止SQL注入,尽量使用#{}参数占位符,拼接字符串使用concat()函数-->
+    <select id="selectUserByUsername2" resultType="com.sunny.maven.pojo.User" parameterType="string">
+        select * from user where username like concat('%', #{username}, '%')
+    </select>
+
+    <!--添加SQL, 参数为POJO对象封装, 参数占位符写对象属性 -->
+    <insert id="insertUser" parameterType="com.sunny.maven.pojo.User">
+        <!--添加返回最后生成的id,并封装到keyProperty中-->
+        <selectKey resultType="integer" keyProperty="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into user (username, birthday, sex, address) values (#{username}, #{birthday}, #{sex}, #{address})
+    </insert>
+
+
+</mapper>
